@@ -1,12 +1,20 @@
 import 'dart:convert';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-class DataContext extends ChangeNotifier {
+abstract class DataContext extends ChangeNotifier {
+  abstract String origin;
 
   void setHeader(String key, String value) => DataContextGlobalResources.headers[key] = value;
+
   void clearHeaders() => DataContextGlobalResources.headers.clear();
+
   void changeOrigin(String newOrigin) => DataContextGlobalResources.dataOrigin = newOrigin;
+
+  static T of<T extends DataContext>(BuildContext context) {
+    return Provider.of<T>(context, listen: false);
+  }
 }
 
 class DataContextGlobalResources {

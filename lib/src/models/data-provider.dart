@@ -10,7 +10,7 @@ abstract class DataProvider<T extends DataClass> {
 
   Future<void> add(T data);
 
-  Future<List<T>> get(Map<String, dynamic> filters);
+  Future<List<T>> get({Map<String, dynamic> filters});
 
   Future<T> getOne(dynamic uniqueID);
 

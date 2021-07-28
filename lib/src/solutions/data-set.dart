@@ -8,15 +8,15 @@ import 'package:http/http.dart' as http;
 class DataSet<Model extends DataClass> extends ChangeNotifier implements DataProvider<Model> {
   final http.Client _server;
 
-  final String _route;
-
   final void Function(http.Response) _bodyParser;
 
-  final Model data;
+  final Model _data;
 
-  final List<DataClass> list = [];
+  final Map<String, DataSet> _children = {};
 
   late Map<String, String> _lastRequestHeaders;
+
+  String _route;
 
   UnmodifiableMapView get lastRequestHeaders => UnmodifiableMapView(_lastRequestHeaders);
 
@@ -24,7 +24,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
       : _server = http.Client(),
         _route = route,
         _bodyParser = bodyParser ?? DataContextGlobalResources.bodyParser,
-        data = instance;
+        _data = instance;
 
   @override
   Future<Model> add(Model data) async {
@@ -35,7 +35,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
       var result = await _server.post(uri, body: body, headers: DataContextGlobalResources.headers);
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
-      var res = data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model;
+      var res = _data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model;
       _succeedLoading(changeStatus);
       return res;
     } catch (e) {
@@ -47,15 +47,15 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   @override
-  Future<List<Model>> get(Map<String, dynamic> filters) async {
+  Future<List<Model>> get({Map<String, dynamic> filters = const {}}) async {
     try {
       _startLoading(loadStatus);
-      var queryParams = generateQueryParameters(filters);
+      var queryParams = _generateQueryParameters(filters);
       var uri = Uri.parse(_origin + _route + queryParams);
       var result = await _server.get(uri, headers: DataContextGlobalResources.headers);
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
-      var res = (jsonDecode(result.body) as List<Map<String, dynamic>>).map((e) => data.fromMap(e));
+      var res = (jsonDecode(result.body) as List<Map<String, dynamic>>).map((e) => _data.fromMap(e));
       _succeedLoading(loadStatus);
       return res.toList() as List<Model>;
     } catch (e) {
@@ -74,7 +74,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
       var result = await _server.get(uri, headers: DataContextGlobalResources.headers);
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
-      var res = data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model;
+      var res = _data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model;
       _succeedLoading(loadStatus);
       return res;
     } catch (e) {
@@ -120,8 +120,25 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
     }
   }
 
-  String generateQueryParameters(Map<String, dynamic> map) => map.keys.reduce((value, key) => value == '' ? value += '?$key=${map[key]}' : '&$key=${map[key]}');
+  DataSet<Model> addChild<T extends DataClass>(String relationName, T instance, String routeTemplate) {
+    var child = DataSet<T>(instance, route: routeTemplate);
+    if (_children[relationName] != null) throw Exception();
+    _children[relationName] = child;
+    return this;
+  }
 
+  DataSet<T> rel<T extends DataClass>(String relationName, {dynamic parentId}) {
+    if (_children[relationName] == null) throw Exception();
+    var child = _children[relationName] as DataSet<T>;
+    var route = child._route;
+    if (parentId != null) route.replaceAll(':parentId', parentId);
+    child.updateRoute(route);
+    return child;
+  }
+
+  String _generateQueryParameters(Map<String, dynamic> map) => map.keys.reduce((value, key) => value == '' ? value += '?$key=${map[key]}' : '&$key=${map[key]}');
+
+  void updateRoute(String newRoute) => _route = newRoute;
   void _startLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
   void _succeedLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
   void _failLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
