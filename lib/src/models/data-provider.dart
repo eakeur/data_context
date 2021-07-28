@@ -1,4 +1,4 @@
-import 'package:data_context/src/models.dart';
+import 'package:datacontext/src/models.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class DataProvider<T extends DataClass> {
