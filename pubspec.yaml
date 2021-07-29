@@ -1,6 +1,6 @@
 name: datacontext
 description: A library that makes API fetching more natural and more readable
-version: 1.0.4
+version: 1.0.5
 repository: https://github.com/eakeur/data_context
 
 environment:

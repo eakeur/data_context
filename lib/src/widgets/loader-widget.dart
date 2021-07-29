@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class LoadStatusWidget extends StatelessWidget {
-  final Widget loadWidget;
+  final Widget Function(BuildContext) loadWidget;
 
-  final Widget? failWidget;
+  final Widget Function(BuildContext)? failWidget;
 
-  final Widget? loadingWidget;
+  final Widget Function(BuildContext)? loadingWidget;
 
-  final Widget? initialWidget;
+  final Widget Function(BuildContext)? initialWidget;
 
   final bool dismissFailed;
 
@@ -26,9 +26,9 @@ class LoadStatusWidget extends StatelessWidget {
     this.onTryAgainButton,
   }) : super(key: key);
 
-  Widget get failWidgetTemplate => FailWidget(onTryAgain: onTryAgainButton);
+  Widget failWidgetTemplate(context) => FailWidget(onTryAgain: onTryAgainButton);
 
-  Widget get loadingWidgetTemplate => Container(child: Center(child: CircularProgressIndicator()));
+  Widget loadingWidgetTemplate(context) => Container(child: Center(child: CircularProgressIndicator()));
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +37,13 @@ class LoadStatusWidget extends StatelessWidget {
       builder: (context, value, child){
         switch (value) {
           case LoadStatus.LOADED:
-            return loadWidget;
+            return loadWidget(context);
           case LoadStatus.LOADING:
-            return dismissLoading ? loadWidget : loadingWidget ?? loadingWidgetTemplate;
+            return dismissLoading ? loadWidget(context) : (loadingWidget ?? loadingWidgetTemplate)(context);
           case LoadStatus.FAILED:
-            return dismissFailed ? loadWidget : failWidget ?? failWidgetTemplate;
+            return dismissFailed ? loadWidget(context) : (failWidget ?? failWidgetTemplate)(context);
           case LoadStatus.INITIAL:
-            return initialWidget ?? loadWidget;
+            return (initialWidget ?? loadWidget)(context);
         }
       }
     );

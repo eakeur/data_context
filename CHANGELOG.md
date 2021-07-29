@@ -19,3 +19,7 @@
 ## 1.0.4
 
 - Allowed client to instantiate controllers
+
+## 1.0.5
+
+- Chnaged widget type on loader widget
