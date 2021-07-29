@@ -11,3 +11,7 @@
 ## 1.0.2
 
 - Added support to widgets
+
+## 1.0.3
+
+- Added support to controllers

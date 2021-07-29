@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
-import 'package:datacontext/src/models.dart';
-import 'package:datacontext/src/solutions.dart';
+import 'solutions.dart';
+import 'package:datacontext/datacontext.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,6 +13,8 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   final Model _data;
 
   final Map<String, DataSet> _children = {};
+
+  final DataController<Model> data = DataController();
 
   late Map<String, String> _lastRequestHeaders;
 
@@ -27,17 +29,16 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
         _data = instance;
 
   @override
-  Future<Model> add(Model data) async {
+  Future<void> add(Model model) async {
     try {
       _startLoading(changeStatus);
       var uri = Uri.parse(_origin + _route);
-      var body = data.toJson();
+      var body = model.toJson();
       var result = await _server.post(uri, body: body, headers: DataContextGlobalResources.headers);
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
-      var res = _data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model;
+      data.setModel(_data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model);
       _succeedLoading(changeStatus);
-      return res;
     } catch (e) {
       _failLoading(changeStatus);
       rethrow;
@@ -56,6 +57,9 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
       var res = (jsonDecode(result.body) as List<Map<String, dynamic>>).map((e) => _data.fromMap(e));
+      res.forEach((el) { if (!data.list.contains(el as Model)) data.list.add(el); });
+      var totalCount = int.tryParse(result.headers['x-total-count'] ?? '0') ?? 0;
+      data.totalRecords = totalCount;
       _succeedLoading(loadStatus);
       return res.toList() as List<Model>;
     } catch (e) {
@@ -75,6 +79,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
       var res = _data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model;
+      data.setModel(res);
       _succeedLoading(loadStatus);
       return res;
     } catch (e) {
@@ -86,11 +91,11 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   @override
-  Future<void> update(dynamic uniqueID, Model data) async {
+  Future<void> update(dynamic uniqueID, Model model) async {
     try {
       _startLoading(changeStatus);
       var uri = Uri.parse(_origin + _route + '/$uniqueID');
-      var body = data.toJson();
+      var body = model.toJson();
       var result = await _server.put(uri, body: body, headers: DataContextGlobalResources.headers);
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
@@ -111,6 +116,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
       var result = await _server.delete(uri, headers: DataContextGlobalResources.headers);
       _lastRequestHeaders = result.headers;
       _bodyParser(result);
+      data.clearModel();
       _succeedLoading(deletionStatus);
     } catch (e) {
       _failLoading(deletionStatus);
