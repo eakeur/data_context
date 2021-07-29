@@ -15,3 +15,7 @@
 ## 1.0.3
 
 - Added support to controllers
+
+## 1.0.4
+
+- Allowed client to instantiate controllers
