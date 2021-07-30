@@ -1,43 +1,52 @@
-import 'dart:collection';
-import 'dart:convert';
-import 'solutions.dart';
+import 'package:http/http.dart';
 import 'package:datacontext/datacontext.dart';
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
+import 'data-context.dart';
+import 'data-fetcher.dart';
 
 class DataSet<Model extends DataClass> extends ChangeNotifier implements DataProvider<Model> {
-  final http.Client _server;
+  final Model _instance;
 
-  final void Function(http.Response) _bodyParser;
+  final Map<String, DataSet> _children = const <String, DataSet>{};
 
-  final Model _data;
+  late Model Function(Map<String, dynamic>) _parser;
 
-  final Map<String, DataSet> _children = {};
-
-  final DataController<Model> data = DataController();
-
-  late Map<String, String> _lastRequestHeaders;
+  late DataFetcher _fetcher;
 
   String _route;
 
-  UnmodifiableMapView get lastRequestHeaders => UnmodifiableMapView(_lastRequestHeaders);
+  DataSet(Model instance,
+      {required String route,
+      String? origin,
+      Map<String, String>? headers,
+      void Function(Uri, Map<String, String>, Map<String, dynamic>?, DataOperation)? onSending,
+      void Function(Response)? onReceiving})
+      : _instance = instance,
+        _route = route {
+    _parser = (map) => _instance.fromMap(map) as Model;
+    _fetcher = DataFetcher(
+      (origin ?? DataContextGlobalResources.dataOrigin),
+      headers: headers ?? DataContextGlobalResources.headers,
+      onSending: onSending,
+      onReceiving: (res) {
+        _setTotalCount(res.headers['x-total-count']);
+        if (onReceiving != null) onReceiving(res);
+      },
+    );
+  }
 
-  DataSet(Model instance, {required String route, Map<String, dynamic> Function(http.Response)? bodyParser})
-      : _server = http.Client(),
-        _route = route,
-        _bodyParser = bodyParser ?? DataContextGlobalResources.bodyParser,
-        _data = instance;
+  @override
+  void create(Model? model) {
+    data = model ?? _instance;
+  }
 
   @override
   Future<void> add(Model model) async {
     try {
       _startLoading(changeStatus);
-      var uri = Uri.parse(_origin + _route);
-      var body = model.toJson();
-      var result = await _server.post(uri, body: body, headers: DataContextGlobalResources.headers);
-      _lastRequestHeaders = result.headers;
-      _bodyParser(result);
-      data.setModel(_data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model);
+      var res = (await _fetcher.add<Model>(_route, model)).load();
+      var mod = res.getModel(_parser);
+      data = mod;
       _succeedLoading(changeStatus);
     } catch (e) {
       _failLoading(changeStatus);
@@ -51,17 +60,16 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   Future<List<Model>> get({Map<String, dynamic> filters = const {}}) async {
     try {
       _startLoading(loadStatus);
-      var queryParams = _generateQueryParameters(filters);
-      var uri = Uri.parse(_origin + _route + queryParams);
-      var result = await _server.get(uri, headers: DataContextGlobalResources.headers);
-      _lastRequestHeaders = result.headers;
-      _bodyParser(result);
-      var res = (jsonDecode(result.body) as List<Map<String, dynamic>>).map((e) => _data.fromMap(e));
-      res.forEach((el) { if (!data.list.contains(el as Model)) data.list.add(el); });
-      var totalCount = int.tryParse(result.headers['x-total-count'] ?? '0') ?? 0;
-      data.totalRecords = totalCount;
-      _succeedLoading(loadStatus);
-      return res.toList() as List<Model>;
+      var res = (await _fetcher.get<Model>(_route, filters)).load();
+      if (res.isList) {
+        var li = res.getList(_parser);
+        li.forEach((el) {
+          if (!list.contains(el)) list.add(el);
+        });
+        _succeedLoading(loadStatus);
+        return li;
+      }
+      throw ArgumentError.value(res.data, 'data', 'Error while fetching list');
     } catch (e) {
       _failLoading(loadStatus);
       rethrow;
@@ -74,14 +82,11 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   Future<Model> getOne(dynamic uniqueID) async {
     try {
       _startLoading(loadStatus);
-      var uri = Uri.parse(_origin + _route + '/$uniqueID');
-      var result = await _server.get(uri, headers: DataContextGlobalResources.headers);
-      _lastRequestHeaders = result.headers;
-      _bodyParser(result);
-      var res = _data.fromMap(jsonDecode(result.body) as Map<String, dynamic>) as Model;
-      data.setModel(res);
+      var res = (await _fetcher.get<Model>('$_route/$uniqueID', {})).load();
+      var mod = res.getModel(_parser);
+      data = mod;
       _succeedLoading(loadStatus);
-      return res;
+      return mod;
     } catch (e) {
       _failLoading(loadStatus);
       rethrow;
@@ -94,11 +99,8 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   Future<void> update(dynamic uniqueID, Model model) async {
     try {
       _startLoading(changeStatus);
-      var uri = Uri.parse(_origin + _route + '/$uniqueID');
-      var body = model.toJson();
-      var result = await _server.put(uri, body: body, headers: DataContextGlobalResources.headers);
-      _lastRequestHeaders = result.headers;
-      _bodyParser(result);
+      await _fetcher.update<Model>('$_route/$uniqueID', model);
+      data = model;
       _succeedLoading(changeStatus);
     } catch (e) {
       _failLoading(changeStatus);
@@ -112,11 +114,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   Future<void> remove(dynamic uniqueID) async {
     try {
       _startLoading(deletionStatus);
-      var uri = Uri.parse(_origin + _route + '/$uniqueID');
-      var result = await _server.delete(uri, headers: DataContextGlobalResources.headers);
-      _lastRequestHeaders = result.headers;
-      _bodyParser(result);
-      data.clearModel();
+      await _fetcher.remove<Model>('$_route/$uniqueID');
       _succeedLoading(deletionStatus);
     } catch (e) {
       _failLoading(deletionStatus);
@@ -126,6 +124,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
     }
   }
 
+  // Relations feature
   DataSet<Model> addChild<T extends DataClass>(String relationName, T instance, String routeTemplate) {
     var child = DataSet<T>(instance, route: routeTemplate);
     if (_children[relationName] != null) throw Exception();
@@ -142,15 +141,18 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
     return child;
   }
 
-  String _generateQueryParameters(Map<String, dynamic> map) => map.keys.reduce((value, key) => value == '' ? value += '?$key=${map[key]}' : '&$key=${map[key]}');
-
+  // Internal utils
   void updateRoute(String newRoute) => _route = newRoute;
+
+  void _setTotalCount(String? value) => totalRecords = int.tryParse(value ?? '') ?? totalRecords;
+
   void _startLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
+
   void _succeedLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
+
   void _failLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
 
-  String get _origin => DataContextGlobalResources.dataOrigin;
-
+  //Overrides
   @override
   ValueNotifier<LoadStatus> changeStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
 
@@ -159,4 +161,32 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
 
   @override
   ValueNotifier<LoadStatus> loadStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
+
+  /// This list stores data fetched by a data provider or setted by other source
+  @override
+  List<Model> list = <Model>[];
+
+  /// This object stores typed data fetched by a data provider or setted by other source
+  Model? _data;
+
+  /// Total records available in the remote server;
+  int totalRecords = 0;
+
+  @override
+  Model? get data => _data;
+
+  @override
+  set data(Model? value) {
+    _data = value;
+    notifyListeners();
+  }
+
+  /// Clears all data from the list and notifies listeners
+  void clearList() {
+    list.clear();
+    notifyListeners();
+  }
+
+  /// Clears the model and notifies listeners
+  void clearModel() => data = null;
 }

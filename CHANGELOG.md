@@ -22,4 +22,8 @@
 
 ## 1.0.5
 
-- Chnaged widget type on loader widget
+- Changed widget type on loader widget
+
+## 1.0.6
+
+- Added support to request tracking
