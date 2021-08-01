@@ -1,13 +1,12 @@
-import 'package:http/http.dart';
 import 'package:datacontext/datacontext.dart';
 import 'package:flutter/widgets.dart';
+
 import 'data-context.dart';
-import 'data-fetcher.dart';
 
 class DataSet<Model extends DataClass> extends ChangeNotifier implements DataProvider<Model> {
   final Model _instance;
 
-  final Map<String, DataSet> _children = const <String, DataSet>{};
+  final Map<String, DataSet> _children = {};
 
   late Model Function(Map<String, dynamic>) _parser;
 
@@ -15,22 +14,15 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
 
   String _route;
 
-  DataSet(Model instance,
-      {required String route,
-      String? origin,
-      Map<String, String>? headers,
-      void Function(Uri, Map<String, String>, Map<String, dynamic>?, DataOperation)? onSending,
-      void Function(Response)? onReceiving})
+  DataSet(Model instance, {required String route, String? origin})
       : _instance = instance,
         _route = route {
     _parser = (map) => _instance.fromMap(map) as Model;
     _fetcher = DataFetcher(
-      (origin ?? DataContextGlobalResources.dataOrigin),
-      headers: headers ?? DataContextGlobalResources.headers,
-      onSending: onSending,
+      onSending: (a, b, c, d) => DataContextGlobalResources.context.resources.onSending(a, b, c, d),
       onReceiving: (res) {
         _setTotalCount(res.headers['x-total-count']);
-        if (onReceiving != null) onReceiving(res);
+        DataContextGlobalResources.context.resources.onReceiving(res);
       },
     );
   }
@@ -135,9 +127,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   DataSet<T> rel<T extends DataClass>(String relationName, {dynamic parentId}) {
     if (_children[relationName] == null) throw Exception();
     var child = _children[relationName] as DataSet<T>;
-    var route = child._route;
-    if (parentId != null) route.replaceAll(':parentId', parentId);
-    child.updateRoute(route);
+    if (parentId != null) child.updateRoute(child._route.replaceAll(':parentId', parentId));
     return child;
   }
 
@@ -148,9 +138,9 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
 
   void _startLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
 
-  void _succeedLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
+  void _succeedLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADED;
 
-  void _failLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
+  void _failLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.FAILED;
 
   //Overrides
   @override

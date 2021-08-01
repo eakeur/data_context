@@ -20,9 +20,14 @@ class LoadStatusWidget extends StatelessWidget {
   final ValueListenable<LoadStatus> status;
 
   const LoadStatusWidget({
-    Key? key, required this.status, required this.loadWidget, 
-    this.failWidget, this.loadingWidget, this.initialWidget, 
-    this.dismissFailed = false, this.dismissLoading = false,
+    Key? key,
+    required this.status,
+    required this.loadWidget,
+    this.failWidget,
+    this.loadingWidget,
+    this.initialWidget,
+    this.dismissFailed = false,
+    this.dismissLoading = false,
     this.onTryAgainButton,
   }) : super(key: key);
 
@@ -33,20 +38,19 @@ class LoadStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<LoadStatus>(
-      valueListenable: status, 
-      builder: (context, value, child){
-        switch (value) {
-          case LoadStatus.LOADED:
-            return loadWidget(context);
-          case LoadStatus.LOADING:
-            return dismissLoading ? loadWidget(context) : (loadingWidget ?? loadingWidgetTemplate)(context);
-          case LoadStatus.FAILED:
-            return dismissFailed ? loadWidget(context) : (failWidget ?? failWidgetTemplate)(context);
-          case LoadStatus.INITIAL:
-            return (initialWidget ?? loadWidget)(context);
-        }
-      }
-    );
+        valueListenable: status,
+        builder: (context, value, child) {
+          switch (value) {
+            case LoadStatus.LOADED:
+              return loadWidget(context);
+            case LoadStatus.LOADING:
+              return dismissLoading ? loadWidget(context) : (loadingWidget ?? loadingWidgetTemplate)(context);
+            case LoadStatus.FAILED:
+              return dismissFailed ? loadWidget(context) : (failWidget ?? failWidgetTemplate)(context);
+            case LoadStatus.INITIAL:
+              return (initialWidget ?? loadWidget)(context);
+          }
+        });
   }
 }
 

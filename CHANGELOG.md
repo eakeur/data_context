@@ -27,3 +27,7 @@
 ## 1.0.6
 
 - Added support to request tracking
+
+## 1.0.7
+
+- Corrected CRUD bugs

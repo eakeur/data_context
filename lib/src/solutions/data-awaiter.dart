@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:datacontext/datacontext.dart';
-import 'package:datacontext/src/exceptions/json-parsing-exceptions.dart';
 
 class DataAwaiter<T extends DataClass> {
   final String json;
@@ -10,7 +9,7 @@ class DataAwaiter<T extends DataClass> {
   bool get isList {
     try {
       if (value == null) return false;
-      return (value as List<Map<String, dynamic>>) is List<Map<String, dynamic>>;
+      return (value as List) is List;
     } catch (e) {
       return false;
     }

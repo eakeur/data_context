@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:datacontext/datacontext.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -38,8 +39,7 @@ class _MyAppState extends State<MyApp> {
             children: restaurants
                 .map(
                   (restaurant) => TextButton(
-                    onPressed: () => myContext.restaurants.rel<Food>('foods', parentId: restaurant.id).get()
-                      .then((f) => foods = f),
+                    onPressed: () => myContext.restaurants.rel<Food>('foods', parentId: restaurant.id).get().then((f) => foods = f),
                     child: Text(restaurant.name ?? 'No name'),
                   ),
                 )
@@ -56,6 +56,18 @@ class MyContext extends DataContext {
 
   @override
   String origin = 'https://localhost/api';
+
+  String? token;
+
+  @override
+  void onReceiving(Response response) {
+    print('RESULT: ${response.statusCode} - REQUEST: ${response.request!.url.toString()}');
+  }
+
+  @override
+  void onSending(Uri uri, Map<String, String> headers, Map<String, dynamic>? data, DataOperation operation) {
+    if (token != null) setHeader('Authorization', token!);
+  }
 }
 
 class Food extends DataClass {
