@@ -16,38 +16,29 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  MyContext get myContext => DataContext.of<MyContext>(context);
-
-  List<Restaurant> restaurants = [];
-  List<Food> foods = [];
+  late DataSet<Restaurant> restaurants;
 
   @override
   void initState() {
     super.initState();
-    myContext.restaurants.get().then((r) => restaurants = r);
+    restaurants = DataContext.of<MyContext>(context).restaurants;
+    restaurants.get();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<LoadStatus>(
-      valueListenable: myContext.restaurants.loadStatus,
-      builder: (context, status, child) {
-        if (status == LoadStatus.LOADING) {
-          return CircularProgressIndicator();
-        } else {
-          return ListView(
-            children: restaurants
-                .map(
-                  (restaurant) => TextButton(
-                    onPressed: () => myContext.restaurants.rel<Food>('foods', parentId: restaurant.id).get().then((f) => foods = f),
-                    child: Text(restaurant.name ?? 'No name'),
-                  ),
-                )
-                .toList(),
-          );
-        }
-      },
-    );
+    return LoadStatusWidget(
+        status: restaurants.loadStatus,
+        loadWidget: (context) => ListView(
+              children: restaurants.list
+                  .map(
+                    (restaurant) => TextButton(
+                      onPressed: () => restaurants.rel<Food>('foods', parentId: restaurant.id).get(),
+                      child: Text(restaurant.name ?? 'No name'),
+                    ),
+                  )
+                  .toList(),
+            ));
   }
 }
 

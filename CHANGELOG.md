@@ -31,3 +31,8 @@
 ## 1.0.7
 
 - Corrected CRUD bugs
+
+
+## 1.0.8
+
+- Corrected README
