@@ -48,3 +48,7 @@
 ## 1.1.0
 
 - Add support to replication of a dataset
+
+## 1.1.1
+
+- Updated README

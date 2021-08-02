@@ -1,16 +1,16 @@
 DataContext is a library that allows you to map your server API and create a context containing all your data. It encapsulates a HttpClient that makes the necessary IO thing to send and fetch your data to and from the API. It also enables you to add relations to your DataSets so that you can navigate easily through the DataContext. In additon, alongside the 'provider' package, you can also add the DataContext to your widget tree, in order to access your data from anywhere in your app.
 
 Some outstanding features you might like: 
-  - [Data is saved in memory and you can control them](#data_is_saved_in_memory_and_you_can_control_them)
-  - [You can track the IO process in many ways](#you_can_track_the_IO_process_in_many_ways)
-  - [You can use specific widgets to avoid showing broken data to users](#you_can_use_specific_widgets_to_avoid_showing_broken_data_to_users)
+  - [Data is saved in memory and you can control them](#data-is-saved-in-memory-and-you-can-control-them)
+  - [You can track the IO process in many ways](#you-can-track-the-io-process-in-many-ways)
+  - [You can use specific widgets to avoid showing broken data to users](#you-can-use-specific-widgets-to-avoid-showing-broken-data-to-users)
 
 ## Usage
 
 To set up your application and use this package with all its features, follow these steps (after you've added it to your `pupspeck.yaml`:
-  - [Build the data model](#build_the_data_model)
-  - [Build the data context](#build_the_data_contex)
-  - [Use it!](#use_it!)
+  - [Build the data model](#build-the-data-model)
+  - [Build the data context](#build-the-data-contex)
+  - [Use it!](#use-it!)
  
 Observations: To illustrate this package's features, we're building a simple app that shows restaurants and the food they provide. The data is fetched from a hypotetical API.
 
