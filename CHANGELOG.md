@@ -36,3 +36,11 @@
 ## 1.0.8
 
 - Corrected README
+
+## 1.0.9
+
+- Corrected README links
+
+## 1.0.91
+
+- Improved algorithms that build query parameters from maps
