@@ -11,6 +11,8 @@ class LoadStatusWidget extends StatelessWidget {
 
   final Widget Function(BuildContext)? initialWidget;
 
+  final Widget? child;
+
   final bool dismissFailed;
 
   final bool dismissLoading;
@@ -23,6 +25,7 @@ class LoadStatusWidget extends StatelessWidget {
     Key? key,
     required this.status,
     required this.loadWidget,
+    this.child,
     this.failWidget,
     this.loadingWidget,
     this.initialWidget,
@@ -50,7 +53,9 @@ class LoadStatusWidget extends StatelessWidget {
             case LoadStatus.INITIAL:
               return (initialWidget ?? loadWidget)(context);
           }
-        });
+        },
+        child: child,
+    );
   }
 }
 

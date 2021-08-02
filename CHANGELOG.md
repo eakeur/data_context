@@ -44,3 +44,7 @@
 ## 1.0.91
 
 - Improved algorithms that build query parameters from maps
+
+## 1.1.0
+
+- Add support to replication of a dataset

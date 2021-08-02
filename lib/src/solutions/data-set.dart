@@ -49,15 +49,17 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   @override
-  Future<List<Model>> get({Map<String, dynamic> filters = const {}}) async {
+  Future<List<Model>> get({Map<String, dynamic> filters = const {}, bool cache = true}) async {
     try {
       _startLoading(loadStatus);
       var res = (await _fetcher.get<Model>(_route, filters)).load();
       if (res.isList) {
         var li = res.getList(_parser);
-        li.forEach((el) {
-          if (!list.contains(el)) list.add(el);
-        });
+        if (cache) {
+          li.forEach((el) {
+            if (!list.contains(el)) list.add(el);
+          });
+        }
         _succeedLoading(loadStatus);
         return li;
       }
@@ -129,6 +131,10 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
     var child = _children[relationName] as DataSet<T>;
     if (parentId != null) child.updateRoute(child._route.replaceAll(':parentId', parentId));
     return child;
+  }
+
+  DataSet<Model> replicate() {
+    return DataSet(_instance, route: _route);
   }
 
   // Internal utils
