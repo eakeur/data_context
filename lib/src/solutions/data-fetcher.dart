@@ -89,8 +89,8 @@ class DataFetcher {
   String mountQueryParameters(Map<String, dynamic> map) {
     if (map.isNotEmpty) {
       var query = '?';
-      map.forEach((key, value) =>
-          value == null ? '' : (query == '?' ? '' : '&') + '&$key=${map[key]}');
+      map.forEach((key, value) => query +=
+          value == null ? '' : (query == '?' ? '' : '&') + '$key=${map[key]}');
       return query == '?' ? '' : query;
     } else {
       return '';

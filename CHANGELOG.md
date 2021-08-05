@@ -60,3 +60,7 @@
 ## 1.1.3
 
 - Corrected query parameter builder code
+
+## 1.1.4
+
+- Corrected query parameter builder code 2
