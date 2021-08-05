@@ -86,11 +86,14 @@ class DataFetcher {
     return Uri.parse(url);
   }
 
-  String mountQueryParameters(Map<String, dynamic> map) => map.isEmpty
-      ? ''
-      : map.keys.reduce((value, key) => map[key] == null
-          ? ''
-          : value == ''
-              ? value += '?$key=${map[key]}'
-              : '&$key=${map[key]}');
+  String mountQueryParameters(Map<String, dynamic> map) {
+    if (map.isNotEmpty) {
+      var query = '?';
+      map.forEach((key, value) =>
+          value == null ? '' : (query == '?' ? '' : '&') + '&$key=${map[key]}');
+      return query == '?' ? '' : query;
+    } else {
+      return '';
+    }
+  }
 }

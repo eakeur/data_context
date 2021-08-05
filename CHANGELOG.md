@@ -56,3 +56,7 @@
 ## 1.1.2
 
 - Formatted code
+
+## 1.1.3
+
+- Corrected query parameter builder code
