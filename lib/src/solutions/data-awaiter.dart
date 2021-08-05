@@ -31,11 +31,13 @@ class DataAwaiter<T extends DataClass> {
 
   List<T> getList(T Function(Map<String, dynamic>) parser) {
     if (isList) return (value as List).map((e) => parser(e)).toList();
-    throw ArgumentError('Ops! Tried to convert data to list, but data was not at list. It is actually ${value.runtimeType.toString()}');
+    throw ArgumentError(
+        'Ops! Tried to convert data to list, but data was not at list. It is actually ${value.runtimeType.toString()}');
   }
 
   T getModel(T Function(Map<String, dynamic>) parser) {
     if (!isList) return parser(value);
-    throw ArgumentError('Ops! Tried to convert list to class, but data was a list.');
+    throw ArgumentError(
+        'Ops! Tried to convert list to class, but data was a list.');
   }
 }

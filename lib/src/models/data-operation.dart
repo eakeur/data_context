@@ -1,3 +1,1 @@
-enum DataOperation {
-  GET, ADD, UPDATE, REMOVE
-}
+enum DataOperation { GET, ADD, UPDATE, REMOVE }

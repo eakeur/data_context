@@ -34,35 +34,36 @@ class LoadStatusWidget extends StatelessWidget {
     this.onTryAgainButton,
   }) : super(key: key);
 
-  Widget failWidgetTemplate(context) => FailWidget(onTryAgain: onTryAgainButton);
+  Widget failWidgetTemplate(context) =>
+      FailWidget(onTryAgain: onTryAgainButton);
 
-  Widget loadingWidgetTemplate(context) => Container(child: Center(child: CircularProgressIndicator()));
+  Widget loadingWidgetTemplate(context) =>
+      Container(child: Center(child: CircularProgressIndicator()));
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<LoadStatus>(
-        valueListenable: status,
-        builder: (context, value, child) {
-          switch (value) {
-            case LoadStatus.LOADED:
-              return loadWidget(context);
-            case LoadStatus.LOADING:
-              return dismissLoading ? loadWidget(context) : (loadingWidget ?? loadingWidgetTemplate)(context);
-            case LoadStatus.FAILED:
-              return dismissFailed ? loadWidget(context) : (failWidget ?? failWidgetTemplate)(context);
-            case LoadStatus.INITIAL:
-              return (initialWidget ?? loadWidget)(context);
-          }
-        },
-        child: child,
+      valueListenable: status,
+      builder: (context, value, child) {
+        switch (value) {
+          case LoadStatus.LOADED:
+            return loadWidget(context);
+          case LoadStatus.LOADING:
+            return dismissLoading
+                ? loadWidget(context)
+                : (loadingWidget ?? loadingWidgetTemplate)(context);
+          case LoadStatus.FAILED:
+            return dismissFailed
+                ? loadWidget(context)
+                : (failWidget ?? failWidgetTemplate)(context);
+          case LoadStatus.INITIAL:
+            return (initialWidget ?? loadWidget)(context);
+        }
+      },
+      child: child,
     );
   }
 }
-
-
-
-
-
 
 // import 'package:comies/utils/declarations/environment.dart';
 // import 'package:comies/structures/structures.dart';
@@ -142,9 +143,6 @@ class LoadStatusWidget extends StatelessWidget {
 //     super.initState();
 //   }
 
-
-
-
 //   @override
 //   Widget build(BuildContext context) {
 //     return decideRender()!;
@@ -178,9 +176,6 @@ class LoadStatusWidget extends StatelessWidget {
 //   }
 // }
 
-
-
-
 // class AsyncButton extends StatelessWidget {
 //   final String? text;
 //   final String? tooltip;
@@ -196,14 +191,14 @@ class LoadStatusWidget extends StatelessWidget {
 //     if (text != null && icon == null) button = ElevatedButton(onPressed: onPressed as void Function()?, child: Text(text!), style: style);
 //     if (text != null && icon != null) button = ElevatedButton.icon(onPressed: onPressed as void Function()?, label: Text(text!), icon: icon!, style: style);
 //     if (text == null && icon != null) button = IconButton(icon: icon!, onPressed: onPressed as void Function()?, tooltip: tooltip);
-    
+
 //     return AnimatedSwitcher(
 //       duration: Duration(milliseconds: 400),
 //       switchInCurve: Curves.easeInBack,
 //       switchOutCurve: Curves.easeOutBack,
 //       transitionBuilder: (child, animation) => SizeTransition(child: child, sizeFactor: animation, axis: Axis.horizontal),
-//       child: isLoading! 
-//         ? Container(width: 55, height: 55, child: CircularProgressIndicator(), padding: EdgeInsets.all(10), key: ValueKey(1)) 
+//       child: isLoading!
+//         ? Container(width: 55, height: 55, child: CircularProgressIndicator(), padding: EdgeInsets.all(10), key: ValueKey(1))
 //         : Container(height: 55, child: (button is IconButton) ? button : Center(child: button) , key: ValueKey(2)),
 //     );
 //   }

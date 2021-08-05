@@ -1,6 +1,6 @@
 abstract class DataClass {
   DataClass();
-  
+
   Map<String, dynamic> toMap();
 
   String toJson();
