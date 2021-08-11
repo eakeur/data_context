@@ -68,3 +68,7 @@
 ## 1.1.5
 
 - Added support for a new way of storing data
+
+## 1.1.6
+
+- Added support for a new way of storing data

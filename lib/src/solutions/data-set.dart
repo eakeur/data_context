@@ -160,7 +160,10 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   @override
   ValueNotifier<LoadStatus> loadStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
 
-  /// This property stores whichever type of object. We recommend using it for storing functions that return a different perspective of the list property
+  /// This property stores whichever views from the main list. We recommend using it for storing functions that return a different perspective of the list property
+  @override
+  Map<String, dynamic> localViews = <String, List<Model> Function()>{};
+
   @override
   Map<String, dynamic> local = <String, dynamic>{};
 

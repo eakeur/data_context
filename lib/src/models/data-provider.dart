@@ -8,6 +8,9 @@ abstract class DataProvider<T extends DataClass> {
 
   abstract final ValueNotifier<LoadStatus> loadStatus;
 
+  /// This property stores whichever views from the main list. We recommend using it for storing functions that return a different perspective of the list property
+  Map<String, dynamic> localViews = <String, List<T> Function()>{};
+
   /// This property stores whichever type of object. We recommend using it for storing functions that return a different perspective of the list property
   Map<String, dynamic> local = <String, dynamic>{};
 
