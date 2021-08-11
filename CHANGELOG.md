@@ -64,3 +64,7 @@
 ## 1.1.4
 
 - Corrected query parameter builder code 2
+
+## 1.1.5
+
+- Added support for a new way of storing data

@@ -3,8 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import 'data-context.dart';
 
-class DataSet<Model extends DataClass> extends ChangeNotifier
-    implements DataProvider<Model> {
+class DataSet<Model extends DataClass> extends ChangeNotifier implements DataProvider<Model> {
   final Model _instance;
 
   final Map<String, DataSet> _children = {};
@@ -20,8 +19,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier
         _route = route {
     _parser = (map) => _instance.fromMap(map) as Model;
     _fetcher = DataFetcher(
-      onSending: (a, b, c, d) =>
-          DataContextGlobalResources.context.resources.onSending(a, b, c, d),
+      onSending: (a, b, c, d) => DataContextGlobalResources.context.resources.onSending(a, b, c, d),
       onReceiving: (res) {
         _setTotalCount(res.headers['x-total-count']);
         DataContextGlobalResources.context.resources.onReceiving(res);
@@ -51,8 +49,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier
   }
 
   @override
-  Future<List<Model>> get(
-      {Map<String, dynamic> filters = const {}, bool cache = true}) async {
+  Future<List<Model>> get({Map<String, dynamic> filters = const {}, bool cache = true}) async {
     try {
       _startLoading(loadStatus);
       var res = (await _fetcher.get<Model>(_route, filters)).load();
@@ -122,8 +119,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier
   }
 
   // Relations feature
-  DataSet<Model> addChild<T extends DataClass>(
-      String relationName, T instance, String routeTemplate) {
+  DataSet<Model> addChild<T extends DataClass>(String relationName, T instance, String routeTemplate) {
     var child = DataSet<T>(instance, route: routeTemplate);
     if (_children[relationName] != null) throw Exception();
     _children[relationName] = child;
@@ -146,49 +142,38 @@ class DataSet<Model extends DataClass> extends ChangeNotifier
   // Internal utils
   void updateRoute(String newRoute) => _route = newRoute;
 
-  void _setTotalCount(String? value) =>
-      totalRecords = int.tryParse(value ?? '') ?? totalRecords;
+  void _setTotalCount(String? value) => totalRecords = int.tryParse(value ?? '') ?? totalRecords;
 
-  void _startLoading(ValueNotifier<LoadStatus> not) =>
-      not.value = LoadStatus.LOADING;
+  void _startLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
 
-  void _succeedLoading(ValueNotifier<LoadStatus> not) =>
-      not.value = LoadStatus.LOADED;
+  void _succeedLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADED;
 
-  void _failLoading(ValueNotifier<LoadStatus> not) =>
-      not.value = LoadStatus.FAILED;
+  void _failLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.FAILED;
 
   //Overrides
   @override
-  ValueNotifier<LoadStatus> changeStatus =
-      ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
+  ValueNotifier<LoadStatus> changeStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
 
   @override
-  ValueNotifier<LoadStatus> deletionStatus =
-      ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
+  ValueNotifier<LoadStatus> deletionStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
 
   @override
-  ValueNotifier<LoadStatus> loadStatus =
-      ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
+  ValueNotifier<LoadStatus> loadStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
+
+  /// This property stores whichever type of object. We recommend using it for storing functions that return a different perspective of the list property
+  @override
+  Map<String, dynamic> local = <String, dynamic>{};
 
   /// This list stores data fetched by a data provider or setted by other source
   @override
   List<Model> list = <Model>[];
 
   /// This object stores typed data fetched by a data provider or setted by other source
-  Model? _data;
+  @override
+  Model? data;
 
   /// Total records available in the remote server;
   int totalRecords = 0;
-
-  @override
-  Model? get data => _data;
-
-  @override
-  set data(Model? value) {
-    _data = value;
-    notifyListeners();
-  }
 
   /// Clears all data from the list and notifies listeners
   void clearList() {

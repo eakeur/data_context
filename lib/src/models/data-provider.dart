@@ -8,6 +8,9 @@ abstract class DataProvider<T extends DataClass> {
 
   abstract final ValueNotifier<LoadStatus> loadStatus;
 
+  /// This property stores whichever type of object. We recommend using it for storing functions that return a different perspective of the list property
+  Map<String, dynamic> local = <String, dynamic>{};
+
   /// This list stores data fetched by a data provider or setted by other source
   abstract List<T> list;
 
