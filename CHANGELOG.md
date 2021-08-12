@@ -72,3 +72,7 @@
 ## 1.1.6
 
 - Added support for a new way of storing data
+
+## 1.1.7
+
+- Allowed to clean dataset when getting child

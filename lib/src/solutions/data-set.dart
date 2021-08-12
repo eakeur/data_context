@@ -119,6 +119,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   // Relations feature
+  /// This method registers a DataSet that will have direct relation to the dataset already instantiated. For that, it uses a relation name as a key for retrieving it later
   DataSet<Model> addChild<T extends DataClass>(String relationName, T instance, String routeTemplate) {
     var child = DataSet<T>(instance, route: routeTemplate);
     if (_children[relationName] != null) throw Exception();
@@ -126,11 +127,18 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
     return this;
   }
 
-  DataSet<T> rel<T extends DataClass>(String relationName, {dynamic parentId}) {
+  /// Returns the dataset that was stored as a child under the relation name passed as parameter
+  DataSet<T> rel<T extends DataClass>(String relationName, {dynamic parentId, bool clear = true}) {
     if (_children[relationName] == null) throw Exception();
     var child = _children[relationName] as DataSet<T>;
     if (parentId != null) {
       child.updateRoute(child._route.replaceAll(':parentId', parentId));
+    }
+    if (clear) {
+      child.clearList();
+      child.clearModel();
+      child.local = {};
+      child.localViews = {};
     }
     return child;
   }
