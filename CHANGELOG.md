@@ -76,3 +76,7 @@
 ## 1.1.7
 
 - Allowed to clean dataset when getting child
+
+## 1.1.8
+
+- Allowed to clean dataset when getting child

@@ -33,12 +33,13 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   @override
-  Future<void> add(Model model) async {
+  Future<void> add([Model? model]) async {
     try {
       _startLoading(changeStatus);
-      var res = (await _fetcher.add<Model>(_route, model)).load();
+      var res = (await _fetcher.add<Model>(_route, model ?? data!)).load();
       var mod = res.getModel(_parser);
       data = mod;
+      list.add(model ?? data!);
       _succeedLoading(changeStatus);
     } catch (e) {
       _failLoading(changeStatus);
@@ -90,11 +91,11 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   @override
-  Future<void> update(dynamic uniqueID, Model model) async {
+  Future<void> update(dynamic uniqueID, [Model? model]) async {
     try {
       _startLoading(changeStatus);
-      await _fetcher.update<Model>('$_route/$uniqueID', model);
-      data = model;
+      await _fetcher.update<Model>('$_route/$uniqueID', model ?? data!);
+      data = model ?? data!;
       _succeedLoading(changeStatus);
     } catch (e) {
       _failLoading(changeStatus);
