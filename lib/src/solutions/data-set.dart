@@ -14,9 +14,12 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
 
   String _route;
 
+  String _initialRoute;
+
   DataSet(Model instance, {required String route, String? origin})
       : _instance = instance,
-        _route = route {
+        _route = route,
+        _initialRoute = route {
     _parser = (map) => _instance.fromMap(map) as Model;
     _fetcher = DataFetcher(
       onSending: (a, b, c, d) => DataContextGlobalResources.context.resources.onSending(a, b, c, d),
@@ -132,6 +135,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   DataSet<T> rel<T extends DataClass>(String relationName, {dynamic parentId, bool clear = true}) {
     if (_children[relationName] == null) throw Exception();
     var child = _children[relationName] as DataSet<T>;
+    child.updateRoute(child._initialRoute);
     if (parentId != null) {
       child.updateRoute(child._route.replaceAll(':parentId', parentId));
     }

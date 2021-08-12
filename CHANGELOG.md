@@ -80,3 +80,7 @@
 ## 1.1.8
 
 - Allowed to clean dataset when getting child
+
+## 1.1.9
+
+- Corrected bug that made the first child be the only one
