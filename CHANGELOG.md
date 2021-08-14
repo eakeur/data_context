@@ -84,6 +84,10 @@
 ## 1.1.9
 
 - Corrected bug that made the first child be the only one
+
 ## 1.2.0
 
 - Added child to replicated datasets
+## 1.2.1
+
+- Added child to replicated datasets - bug fixes

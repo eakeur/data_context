@@ -149,11 +149,8 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   DataSet<Model> replicate() {
-    var ds = DataSet(_instance, route: _initialRoute);
-    for (var key in _children.keys) {
-      var child = _children[key]!.replicate();
-      ds.addChild(key, child._instance, child._initialRoute);
-    }
+    var ds = DataSet<Model>(_instance, route: _initialRoute);
+    _children.keys.forEach((key) => ds._children[key] = _children[key]!.replicate());
     return ds;
   }
 
