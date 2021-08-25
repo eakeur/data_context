@@ -2,7 +2,7 @@ DataContext is a library that allows you to map your server API and create a con
 
 Some outstanding features you might like: 
   - [Data is saved in memory and you can control them](#data-is-saved-in-memory-and-you-can-control-them)
-  - [You can track the IO process in many ways](#you-can-track-the-io-process-in-many-ways)
+  - [You can track the IO process in many ways](#you-can-track-the-io-process)
   - [You can use specific widgets to avoid showing broken data to users](#you-can-use-specific-widgets-to-avoid-showing-broken-data-to-users)
 
 ## Usage
@@ -136,8 +136,8 @@ class _MyAppState extends State<MyApp> {
 ### Data is saved in memory and you can control them
 Every DataSet comes with the list and data properties and every request result saves the data in them. You can access it, change it and clear it when you feel like. With them, you can save up time by not creating variables everywhere in your app and also share resources with unrelated widgets.
 
-### You can track the IO process in many ways
-Every request you make can be tracked by the methods `onSending` and `onReceiving` in your data context. But also, every DataSet has these properties: 'changeStatus, loadStatus and deletionStatus'. The first one is triggered by the `add()` and `update()` process. The second, by the `get()` and `getOne()` process. The third, by the `remove()` process. Each of these properties has four states: 'initial, loaded, loading, failed'. Encapsulated with a ValueNotifier object, you can control when and how your requests are being made. With that, you know exactly what and when to show your users a widget.  
+### You can track the IO process
+Every request you make can be tracked by the methods `onSending` and `onReceiving` in your data context. But also, every DataSet has the property loadStatus, triggered by `add()`, `update()`, `get()`, `getOne()` and `remove()` processes. It four states: 'initial, loaded, loading, failed'. Encapsulated with a ValueNotifier object, you can control when and how your requests are being made. With that, you know exactly what and when to show your users a widget.  
 
 ### You can use specific widgets to avoid showing broken data to users
 This package also has some widgets!. With the IsNullWidget, you can track if an object is null. If so, it will render a widget and listen when the object changes value. When it does, it renders another widget of your choice.

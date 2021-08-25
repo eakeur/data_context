@@ -38,14 +38,14 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   @override
   Future<void> add([Model? model]) async {
     try {
-      _startLoading(changeStatus);
+      _startLoading();
       var res = (await _fetcher.add<Model>(_route, model ?? data!)).load();
       var mod = res.getModel(_parser);
       data = mod;
       list.add(model ?? data!);
-      _succeedLoading(changeStatus);
+      _succeedLoading();
     } catch (e) {
-      _failLoading(changeStatus);
+      _failLoading();
       rethrow;
     } finally {
       notifyListeners();
@@ -55,7 +55,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   @override
   Future<List<Model>> get({Map<String, dynamic> filters = const {}, bool cache = true}) async {
     try {
-      _startLoading(loadStatus);
+      _startLoading();
       var res = (await _fetcher.get<Model>(_route, filters)).load();
       if (res.isList) {
         var li = res.getList(_parser);
@@ -64,12 +64,12 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
             if (!list.contains(el)) list.add(el);
           });
         }
-        _succeedLoading(loadStatus);
+        _succeedLoading();
         return li;
       }
       throw ArgumentError.value(res.data, 'data', 'Error while fetching list');
     } catch (e) {
-      _failLoading(loadStatus);
+      _failLoading();
       rethrow;
     } finally {
       notifyListeners();
@@ -79,14 +79,14 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   @override
   Future<Model> getOne(dynamic uniqueID) async {
     try {
-      _startLoading(loadStatus);
+      _startLoading();
       var res = (await _fetcher.get<Model>('$_route/$uniqueID', {})).load();
       var mod = res.getModel(_parser);
       data = mod;
-      _succeedLoading(loadStatus);
+      _succeedLoading();
       return mod;
     } catch (e) {
-      _failLoading(loadStatus);
+      _failLoading();
       rethrow;
     } finally {
       notifyListeners();
@@ -96,12 +96,12 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   @override
   Future<void> update(dynamic uniqueID, [Model? model]) async {
     try {
-      _startLoading(changeStatus);
+      _startLoading();
       await _fetcher.update<Model>('$_route/$uniqueID', model ?? data!);
       data = model ?? data!;
-      _succeedLoading(changeStatus);
+      _succeedLoading();
     } catch (e) {
-      _failLoading(changeStatus);
+      _failLoading();
       rethrow;
     } finally {
       notifyListeners();
@@ -111,11 +111,11 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   @override
   Future<void> remove(dynamic uniqueID) async {
     try {
-      _startLoading(deletionStatus);
+      _startLoading();
       await _fetcher.remove<Model>('$_route/$uniqueID');
-      _succeedLoading(deletionStatus);
+      _succeedLoading();
     } catch (e) {
-      _failLoading(deletionStatus);
+      _failLoading();
       rethrow;
     } finally {
       notifyListeners();
@@ -159,18 +159,13 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
 
   void _setTotalCount(String? value) => totalRecords = int.tryParse(value ?? '') ?? totalRecords;
 
-  void _startLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADING;
+  void _startLoading() => loadStatus.value = LoadStatus.LOADING;
 
-  void _succeedLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.LOADED;
+  void _succeedLoading() => loadStatus.value = LoadStatus.LOADED;
 
-  void _failLoading(ValueNotifier<LoadStatus> not) => not.value = LoadStatus.FAILED;
+  void _failLoading() => loadStatus.value = LoadStatus.FAILED;
 
   //Overrides
-  @override
-  ValueNotifier<LoadStatus> changeStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
-
-  @override
-  ValueNotifier<LoadStatus> deletionStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);
 
   @override
   ValueNotifier<LoadStatus> loadStatus = ValueNotifier<LoadStatus>(LoadStatus.INITIAL);

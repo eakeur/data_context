@@ -91,3 +91,6 @@
 ## 1.2.1
 
 - Added child to replicated datasets - bug fixes
+## 1.2.2
+
+- Centered the track of the IO process in the load status property

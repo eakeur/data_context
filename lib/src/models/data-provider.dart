@@ -2,10 +2,6 @@ import 'package:datacontext/datacontext.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class DataProvider<T extends DataClass> {
-  abstract final ValueNotifier<LoadStatus> changeStatus;
-
-  abstract final ValueNotifier<LoadStatus> deletionStatus;
-
   abstract final ValueNotifier<LoadStatus> loadStatus;
 
   /// This property stores whichever views from the main list. We recommend using it for storing functions that return a different perspective of the list property
