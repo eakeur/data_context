@@ -94,3 +94,6 @@
 ## 1.2.2
 
 - Centered the track of the IO process in the load status property
+## 1.2.3
+
+- Fixed some errors on the FailWidget
