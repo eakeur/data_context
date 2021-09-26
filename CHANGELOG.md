@@ -97,3 +97,6 @@
 ## 1.2.3
 
 - Fixed some errors on the FailWidget
+## 1.2.4
+
+- Set dismissed failed property for true in the LoadStatusWidget

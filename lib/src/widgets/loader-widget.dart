@@ -29,16 +29,14 @@ class LoadStatusWidget extends StatelessWidget {
     this.failWidget,
     this.loadingWidget,
     this.initialWidget,
-    this.dismissFailed = false,
+    this.dismissFailed = true,
     this.dismissLoading = false,
     this.onTryAgainButton,
   }) : super(key: key);
 
-  Widget failWidgetTemplate(context) =>
-      FailWidget(onTryAgain: onTryAgainButton);
+  Widget failWidgetTemplate(context) => FailWidget(onTryAgain: onTryAgainButton);
 
-  Widget loadingWidgetTemplate(context) =>
-      Container(child: Center(child: CircularProgressIndicator()));
+  Widget loadingWidgetTemplate(context) => Container(child: Center(child: CircularProgressIndicator()));
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +47,9 @@ class LoadStatusWidget extends StatelessWidget {
           case LoadStatus.LOADED:
             return loadWidget(context);
           case LoadStatus.LOADING:
-            return dismissLoading
-                ? loadWidget(context)
-                : (loadingWidget ?? loadingWidgetTemplate)(context);
+            return dismissLoading ? loadWidget(context) : (loadingWidget ?? loadingWidgetTemplate)(context);
           case LoadStatus.FAILED:
-            return dismissFailed
-                ? loadWidget(context)
-                : (failWidget ?? failWidgetTemplate)(context);
+            return dismissFailed ? loadWidget(context) : (failWidget ?? failWidgetTemplate)(context);
           case LoadStatus.INITIAL:
             return (initialWidget ?? loadWidget)(context);
         }
