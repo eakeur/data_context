@@ -100,3 +100,6 @@
 ## 1.2.4
 
 - Set dismissed failed property for true in the LoadStatusWidget
+## 1.2.5
+
+- Allowed datasets to have their own origin

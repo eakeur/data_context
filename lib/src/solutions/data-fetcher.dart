@@ -5,24 +5,21 @@ import 'data-awaiter.dart';
 import 'data-context.dart';
 
 class DataFetcher {
-  final void Function(
-          Uri, Map<String, String>, Map<String, dynamic>?, DataOperation)?
-      onSending;
+  final void Function(Uri, Map<String, String>, Map<String, dynamic>?, DataOperation)? onSending;
 
   final void Function(Response)? onReceiving;
 
-  Map<String, String> get headers =>
-      DataContextGlobalResources.context.resources.headers;
+  Map<String, String> get headers => DataContextGlobalResources.context.resources.headers;
 
-  String get path =>
-      DataContextGlobalResources.context.resources.data['origin']!;
+  String get path => customOrigin ?? DataContextGlobalResources.context.resources.data['origin']!;
 
   final Client client;
 
-  DataFetcher({this.onSending, this.onReceiving}) : client = Client();
+  final String? customOrigin;
 
-  Future<DataAwaiter<T>> get<T extends DataClass>(
-      String route, Map<String, dynamic> query) async {
+  DataFetcher({this.onSending, this.onReceiving, this.customOrigin}) : client = Client();
+
+  Future<DataAwaiter<T>> get<T extends DataClass>(String route, Map<String, dynamic> query) async {
     var uri = mountUri(route, query);
     if (onSending != null) onSending!(uri, headers, query, DataOperation.GET);
     var response = await client.get(uri, headers: headers);
@@ -39,14 +36,12 @@ class DataFetcher {
     } catch (e) {
       throw ArgumentError('Failed converting data to JSON: ${data.toString()}');
     }
-    var response =
-        await client.post(uri, body: body as String, headers: headers);
+    var response = await client.post(uri, body: body as String, headers: headers);
     if (onReceiving != null) onReceiving!(response);
     return DataAwaiter<T>(response.body);
   }
 
-  Future<DataAwaiter<T>> update<T extends DataClass>(
-      String route, T data) async {
+  Future<DataAwaiter<T>> update<T extends DataClass>(String route, T data) async {
     var uri = mountUri(route, {});
     if (onSending != null) onSending!(uri, headers, null, DataOperation.UPDATE);
     var body;
@@ -55,14 +50,12 @@ class DataFetcher {
     } catch (e) {
       throw ArgumentError('Failed converting data to JSON: ${data.toString()}');
     }
-    var response =
-        await client.put(uri, body: body as String, headers: headers);
+    var response = await client.put(uri, body: body as String, headers: headers);
     if (onReceiving != null) onReceiving!(response);
     return DataAwaiter<T>(response.body);
   }
 
-  Future<DataAwaiter<T>> remove<T extends DataClass>(String route,
-      {T? data, Map<String, dynamic> query = const <String, String>{}}) async {
+  Future<DataAwaiter<T>> remove<T extends DataClass>(String route, {T? data, Map<String, dynamic> query = const <String, String>{}}) async {
     var uri = mountUri(route, query);
     if (onSending != null) {
       onSending!(uri, headers, query, DataOperation.REMOVE);
@@ -81,16 +74,14 @@ class DataFetcher {
   Uri mountUri(String route, Map<String, dynamic> query) {
     var params = mountQueryParameters(query);
     var members = <String>[path, route + params];
-    var url =
-        members.reduce((val, el) => val + (el.startsWith('/') ? el : '/$el'));
+    var url = members.reduce((val, el) => val + (el.startsWith('/') ? el : '/$el'));
     return Uri.parse(url);
   }
 
   String mountQueryParameters(Map<String, dynamic> map) {
     if (map.isNotEmpty) {
       var query = '?';
-      map.forEach((key, value) => query +=
-          value == null ? '' : (query == '?' ? '' : '&') + '$key=${map[key]}');
+      map.forEach((key, value) => query += value == null ? '' : (query == '?' ? '' : '&') + '$key=${map[key]}');
       return query == '?' ? '' : query;
     } else {
       return '';

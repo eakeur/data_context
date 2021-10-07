@@ -22,6 +22,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
         _initialRoute = route {
     _parser = (map) => _instance.fromMap(map) as Model;
     _fetcher = DataFetcher(
+      customOrigin: origin,
       onSending: (a, b, c, d) => DataContextGlobalResources.context.resources.onSending(a, b, c, d),
       onReceiving: (res) {
         _setTotalCount(res.headers['x-total-count']);
