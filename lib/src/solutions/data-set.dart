@@ -14,6 +14,8 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
 
   String _route;
 
+  String get route => _route;
+
   String _initialRoute;
 
   DataSet(Model instance, {required String route, String? origin})
@@ -29,6 +31,12 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
         DataContextGlobalResources.context.resources.onReceiving(res);
       },
     );
+    var ds = DataContextGlobalResources.context.resources.datasets[Model];
+    if (ds == null) DataContextGlobalResources.context.resources.datasets[Model] = this;
+  }
+
+  static DataSet<T> of<T extends DataClass>() {
+    return DataContextGlobalResources.context.resources.datasets[T] as DataSet<T>;
   }
 
   @override
@@ -150,7 +158,7 @@ class DataSet<Model extends DataClass> extends ChangeNotifier implements DataPro
   }
 
   DataSet<Model> replicate() {
-    var ds = DataSet<Model>(_instance, route: _initialRoute);
+    var ds = DataSet<Model>(_instance, route: _initialRoute, origin: _fetcher.path);
     _children.keys.forEach((key) => ds._children[key] = _children[key]!.replicate());
     return ds;
   }

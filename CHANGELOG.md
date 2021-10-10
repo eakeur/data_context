@@ -103,3 +103,6 @@
 ## 1.2.5
 
 - Allowed datasets to have their own origin
+## 1.2.6
+
+- Added support to retrieving a dataset passin their type instead of their string name
